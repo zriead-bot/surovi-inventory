@@ -284,11 +284,11 @@
         }
 
         tr.low-stock-row {
-            background-color: #ffebee;
+            background-color: #fff5f5 !important;
         }
 
         tr.low-stock-row:hover {
-            background-color: #ffcdd2;
+            background-color: #ffeaea !important;
         }
 
         .stock-cell {
@@ -299,6 +299,7 @@
         .stock-cell.low {
             color: #e74c3c;
             font-weight: 600;
+            background-color: #fff5f5;
         }
 
         .instructions {
@@ -379,6 +380,249 @@
             color: #7f8c8d;
             font-size: 1.1rem;
         }
+
+        /* Additional CSS for enhanced table display */
+        .product-name {
+            font-weight: 500;
+            line-height: 1.3;
+        }
+
+        .pack-size {
+            display: block;
+            color: #666;
+            font-size: 0.85rem;
+            margin-top: 3px;
+        }
+
+        .portfolio {
+            display: block;
+            color: #4CAF50;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        .low-icon {
+            color: #e74c3c;
+            margin-left: 5px;
+            font-size: 0.9rem;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-align: center;
+            min-width: 70px;
+        }
+
+        .status.normal {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+
+        .status.low {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+
+        small {
+            color: #666;
+            font-size: 0.8rem;
+            display: block;
+            line-height: 1.2;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .status {
+                min-width: 60px;
+                padding: 3px 6px;
+                font-size: 0.75rem;
+            }
+            
+            .product-name {
+                font-size: 0.9rem;
+            }
+            
+            th, td {
+                padding: 10px 8px;
+                font-size: 0.9rem;
+            }
+            
+            .upload-area {
+                padding: 25px 15px;
+            }
+            
+            .upload-icon {
+                font-size: 2.5rem;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .stat-value {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            .upload-section, .controls-section, .instructions, footer, 
+            .export-button, .upload-button, .upload-area {
+                display: none !important;
+            }
+            
+            .table-container {
+                box-shadow: none;
+                padding: 0;
+            }
+            
+            body {
+                background: white;
+                padding: 10px;
+            }
+            
+            table {
+                font-size: 10pt;
+            }
+            
+            th {
+                background: #333 !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+            }
+        }
+
+        /* Tooltip styles */
+        [title] {
+            position: relative;
+        }
+
+        [title]:hover::after {
+            content: attr(title);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            z-index: 1000;
+            margin-bottom: 5px;
+        }
+
+        /* Animation for file upload */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .file-info.show, .stat-card, .step {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Highlight animation for low stock */
+        @keyframes pulse {
+            0% { background-color: #fff5f5; }
+            50% { background-color: #ffeaea; }
+            100% { background-color: #fff5f5; }
+        }
+
+        .low-stock-row {
+            animation: pulse 2s infinite;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* Focus styles for accessibility */
+        button:focus, input:focus, select:focus {
+            outline: 2px solid #4CAF50;
+            outline-offset: 2px;
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+                color: #e0e0e0;
+            }
+            
+            .upload-section, .controls-section, .table-container, .instructions, .stat-card {
+                background: #2d3748;
+                color: #e0e0e0;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            }
+            
+            .upload-area {
+                background-color: #374151;
+                border-color: #4CAF50;
+            }
+            
+            .upload-area:hover {
+                background-color: #4b5563;
+            }
+            
+            .file-info {
+                background: #374151;
+            }
+            
+            input, select {
+                background: #4a5568;
+                color: white;
+                border-color: #718096;
+            }
+            
+            .step {
+                background: #374151;
+            }
+            
+            td {
+                border-bottom-color: #4a5568;
+            }
+            
+            tr:hover {
+                background-color: #374151;
+            }
+            
+            .low-stock-row {
+                background-color: #5c2a2a !important;
+            }
+            
+            .low-stock-row:hover {
+                background-color: #7a3737 !important;
+            }
+            
+            .stock-cell.low {
+                background-color: #5c2a2a;
+            }
+        }
     </style>
 </head>
 <body>
@@ -399,7 +643,7 @@
                     <h2><i class="fas fa-upload"></i> Upload Excel Stock File</h2>
                     <p>Upload your National Stock Excel file to analyze inventory across all depots.</p>
                     
-                    <div class="upload-area" id="dropArea">
+                    <div class="upload-area" id="dropArea" title="Drag and drop your Excel file here">
                         <div class="upload-icon">
                             <i class="fas fa-file-excel"></i>
                         </div>
@@ -462,7 +706,7 @@
                 <div class="controls">
                     <div class="control-group">
                         <label for="lowStockThreshold"><i class="fas fa-thermometer-empty"></i> Low Stock Threshold</label>
-                        <input type="number" id="lowStockThreshold" value="50" min="1" max="1000">
+                        <input type="number" id="lowStockThreshold" value="50" min="1" max="1000" title="Items below this quantity will be flagged as low stock">
                         <small>Items below this quantity are flagged as low stock</small>
                     </div>
                     
@@ -480,11 +724,11 @@
                     
                     <div class="control-group">
                         <label for="productFilter"><i class="fas fa-filter"></i> Filter by Product Name</label>
-                        <input type="text" id="productFilter" placeholder="Enter product name...">
+                        <input type="text" id="productFilter" placeholder="Enter product name..." title="Type to filter products by name">
                     </div>
                 </div>
                 
-                <button class="export-button" id="exportButton" disabled>
+                <button class="export-button" id="exportButton" disabled title="Export filtered data to Excel">
                     <i class="fas fa-download"></i> Export Data to Excel
                 </button>
                 
@@ -541,11 +785,24 @@
                     <p>Download filtered data as Excel for reporting and sharing</p>
                 </div>
             </div>
+            <div style="margin-top: 25px; padding: 15px; background: #e8f5e9; border-radius: 8px;">
+                <h4><i class="fas fa-lightbulb"></i> Pro Tips</h4>
+                <ul style="margin-top: 10px; padding-left: 20px;">
+                    <li>Click on table headers to sort by that column</li>
+                    <li>Use the low stock threshold to customize alerts</li>
+                    <li>Filter by location to see depot-specific stock levels</li>
+                    <li>Export data for offline analysis or reporting</li>
+                    <li>Drag and drop your Excel file for quick upload</li>
+                </ul>
+            </div>
         </div>
 
         <footer>
             <p>Surovi Agro Industries Ltd. &copy; <span id="currentYear">2024</span> | National Stock Management System</p>
             <p>This dashboard processes Excel files locally in your browser - no data is uploaded to any server</p>
+            <p style="margin-top: 10px; font-size: 0.8rem; color: #95a5a6;">
+                <i class="fas fa-shield-alt"></i> Your data remains private and secure
+            </p>
         </footer>
     </div>
 
