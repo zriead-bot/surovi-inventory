@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operations Dashboard | Surovi Agro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Add to existing CSS */
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .task {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-radius: 8px;
+            gap: 1rem;
+            border-left: 4px solid;
+        }
+        
+        .task.urgent {
+            border-left-color: #ff6b6b;
+            background: #ffebee;
+        }
+        
+        .task.warning {
+            border-left-color: #ffd93d;
+            background: #fff8e1;
+        }
+        
+        .task.normal {
+            border-left-color: #4d96ff;
+            background: #e3f2fd;
+        }
+        
+        .task.completed {
+            border-left-color: #6bcf7f;
+            background: #e8f5e9;
+            opacity: 0.7;
+        }
+        
+        .task-check input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .task-content {
+            flex: 1;
+        }
+        
+        .task-content h3 {
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .task-meta {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .task-meta i {
+            margin-right: 0.3rem;
+        }
+        
+        .btn-small {
+            padding: 0.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .btn-small:hover {
+            color: #333;
+        }
+        
+        .add-task {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .add-task input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .depot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .depot-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border: 1px solid #dee2e6;
+        }
+        
+        .depot-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .status-indicator.good { background: #6bcf7f; }
+        .status-indicator.warning { background: #ffd93d; }
+        .status-indicator.bad { background: #ff6b6b; }
+        
+        .depot-stats {
+            margin-bottom: 1rem;
+        }
+        
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .stat-value.good { color: #27ae60; font-weight: bold; }
+        .stat-value.warning { color: #f39c12; font-weight: bold; }
+        .stat-value.bad { color: #e74c3c; font-weight: bold; }
+        
+        .depot-issues {
+            font-size: 0.9rem;
+        }
+        
+        .issue-count.warning { color: #f39c12; }
+        .issue-count.bad { color: #e74c3c; }
+        
+        .movement-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .movement-table th,
+        .movement-table td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .badge.pending { background: #fff3cd; color: #856404; }
+        .badge.in-transit { background: #cce5ff; color: #004085; }
+        .badge.completed { background: #d4edda; color: #155724; }
+        .badge.scheduled { background: #d1ecf1; color: #0c5460; }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .metric-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid #dee2e6;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-label {
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-trend {
+            font-size: 0.9rem;
+        }
+        
+        .metric-trend.up { color: #27ae60; }
+        .metric-trend.down { color: #e74c3c; }
+        .metric-trend.stable { color: #95a5a6; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <i class="fas fa-cogs"></i>
+            <span>Operations Dashboard</span>
+        </div>
+        <div class="nav-links">
+            <a href="index.html"><i class="fas fa-tachometer-alt"></i> Main</a>
+            <a href="executive.html"><i class="fas fa-chart-line"></i> Executive</a>
+            <a href="operations.html" class="active"><i class="fas fa-cogs"></i> Operations</a>
+            <a href="analyst.html"><i class="fas fa-chart-bar"></i> Analyst</a>
+        </div>
+        <div class="nav-user">
+            <span>Warehouse Operations</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Daily Tasks -->
+        <div class="card daily-tasks">
+            <h2><i class="fas fa-tasks"></i> Today's Tasks</h2>
+            <div class="task-list">
+                <div class="task urgent">
+                    <div class="task-check">
+                        <input type="checkbox" id="task1">
+                    </div>
+                    <div class="task-content">
+                        <h3>Transfer 2,000 Prosper units from Bogra to Chattagram</h3>
+                        <div class="task-meta">
+                            <span><i class="fas fa-clock"></i> Due: Today 5:00 PM</span>
+                            <span><i class="fas fa-user"></i> Assigned: Transport Team</span>
+                        </div>
+                    </div>
+                    <div class="task-actions">
+                        <button class="btn-small"><i class="fas fa-edit"></i></button>
+                        <button class="btn-small"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+                
+                <div class="task warning">
+                    <div class="task-check">
+                        <input type="checkbox" id="task2">
+                    </div>
+                    <div class="task-content">
+                        <h3>Cycle count for Moto 20g in Dhaka depot</h3>
+                        <div class="task-meta">
+                            <span><i class="fas fa-clock"></i> Due: Tomorrow 10:00 AM</span>
+                            <span><i class="fas fa-user"></i> Assigned: Audit Team</span>
+                        </div>
+                    </div>
+                    <div class="task-actions">
+                        <button class="btn-small"><i class="fas fa-edit"></i></button>
+                        <button class="btn-small"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+                
+                <div class="task normal">
+                    <div class="task-check">
+                        <input type="checkbox" id="task3">
+                    </div>
+                    <div class="task-content">
+                        <h3>Receive shipment of Agent 505 EC (500 units)</h3>
+                        <div class="task-meta">
+                            <span><i class="fas fa-clock"></i> Due: Today 2:00 PM</span>
+                            <span><i class="fas fa-user"></i> Assigned: Receiving Team</span>
+                        </div>
+                    </div>
+                    <div class="task-actions">
+                        <button class="btn-small"><i class="fas fa-edit"></i></button>
+                        <button class="btn-small"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+                
+                <div class="task completed">
+                    <div class="task-check">
+                        <input type="checkbox" id="task4" checked>
+                    </div>
+                    <div class="task-content">
+                        <h3>Morning stock check - All depots</h3>
+                        <div class="task-meta">
+                            <span><i class="fas fa-check-circle"></i> Completed: 9:00 AM</span>
+                            <span><i class="fas fa-user"></i> Completed by: Supervisor</span>
+                        </div>
+                    </div>
+                    <div class="task-actions">
+                        <button class="btn-small"><i class="fas fa-history"></i></button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="add-task">
+                <input type="text" placeholder="Add new task..." id="newTask">
+                <button class="btn-primary" onclick="addTask()"><i class="fas fa-plus"></i> Add</button>
+            </div>
+        </div>
+
+        <!-- Depot Operations Status -->
+        <div class="card depot-status">
+            <h2><i class="fas fa-warehouse"></i> Depot Operations Status</h2>
+            <div class="depot-grid">
+                <div class="depot-card">
+                    <div class="depot-header">
+                        <h3>Dhaka Depot</h3>
+                        <span class="status-indicator good"></span>
+                    </div>
+                    <div class="depot-stats">
+                        <div class="stat">
+                            <span class="stat-label">Today's Receiving</span>
+                            <span class="stat-value">15 pallets</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Today's Picking</span>
+                            <span class="stat-value">200 orders</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Accuracy</span>
+                            <span class="stat-value good">98.5%</span>
+                        </div>
+                    </div>
+                    <div class="depot-issues">
+                        <span class="issue-count">No issues</span>
+                    </div>
+                </div>
+                
+                <div class="depot-card">
+                    <div class="depot-header">
+                        <h3>Bogra Depot</h3>
+                        <span class="status-indicator warning"></span>
+                    </div>
+                    <div class="depot-stats">
+                        <div class="stat">
+                            <span class="stat-label">Pending Transfers</span>
+                            <span class="stat-value">2 transfers</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Overstock Items</span>
+                            <span class="stat-value">18 products</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Space Utilization</span>
+                            <span class="stat-value warning">85%</span>
+                        </div>
+                    </div>
+                    <div class="depot-issues">
+                        <span class="issue-count warning">2 issues pending</span>
+                    </div>
+                </div>
+                
+                <div class="depot-card">
+                    <div class="depot-header">
+                        <h3>Chattagram Depot</h3>
+                        <span class="status-indicator bad"></span>
+                    </div>
+                    <div class="depot-stats">
+                        <div class="stat">
+                            <span class="stat-label">Stock Level</span>
+                            <span class="stat-value bad">12%</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Urgent Receiving</span>
+                            <span class="stat-value">6 pallets</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Backorders</span>
+                            <span class="stat-value bad">15 orders</span>
+                        </div>
+                    </div>
+                    <div class="depot-issues">
+                        <span class="issue-count bad">Critical: Needs stock</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock Movement -->
+        <div class="card stock-movement">
+            <h2><i class="fas fa-exchange-alt"></i> Today's Stock Movement</h2>
+            <table class="movement-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Product</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Quantity</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>09:30</td>
+                        <td>Prosper 10g</td>
+                        <td>Bogra</td>
+                        <td>Chattagram</td>
+                        <td class="positive">+2,000</td>
+                        <td><span class="badge pending">Pending</span></td>
+                    </tr>
+                    <tr>
+                        <td>10:15</td>
+                        <td>Moto 20g</td>
+                        <td>Factory</td>
+                        <td>Dhaka</td>
+                        <td class="positive">+1,500</td>
+                        <td><span class="badge in-transit">In Transit</span></td>
+                    </tr>
+                    <tr>
+                        <td>11:00</td>
+                        <td>Current 70 WP</td>
+                        <td>Rangpur</td>
+                        <td>Jhenaidah</td>
+                        <td class="negative">-800</td>
+                        <td><span class="badge completed">Completed</span></td>
+                    </tr>
+                    <tr>
+                        <td>14:30</td>
+                        <td>Agent 505 EC</td>
+                        <td>Supplier</td>
+                        <td>All Depots</td>
+                        <td class="positive">+500</td>
+                        <td><span class="badge scheduled">Scheduled</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="card performance-metrics">
+            <h2><i class="fas fa-chart-bar"></i> Operations Performance</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">98.5%</div>
+                    <div class="metric-label">Picking Accuracy</div>
+                    <div class="metric-trend up">
+                        <i class="fas fa-arrow-up"></i> 0.5%
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">2.1 hours</div>
+                    <div class="metric-label">Average Receiving Time</div>
+                    <div class="metric-trend down">
+                        <i class="fas fa-arrow-down"></i> 0.3h
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">95.2%</div>
+                    <div class="metric-label">Stock Accuracy</div>
+                    <div class="metric-trend up">
+                        <i class="fas fa-arrow-up"></i> 1.2%
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">99%</div>
+                    <div class="metric-label">On-time Dispatch</div>
+                    <div class="metric-trend stable">
+                        <i class="fas fa-minus"></i> 0%
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Surovi Agro Industries Ltd. | Operations Dashboard v1.0</p>
+        <p>Real-time warehouse operations management</p>
+    </footer>
+
+    <script>
+        function addTask() {
+            const taskInput = document.getElementById('newTask');
+            if (taskInput.value.trim()) {
+                alert('Task added: ' + taskInput.value);
+                taskInput.value = '';
+            }
+        }
+        
+        // Task checkbox functionality
+        document.querySelectorAll('.task-check input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const task = this.closest('.task');
+                if (this.checked) {
+                    task.classList.add('completed');
+                    task.classList.remove('urgent', 'warning', 'normal');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
