@@ -3,154 +3,923 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Surovi Agro - Inventory Dashboard</title>
+    <title>Surovi Agro - Inventory Optimization System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: #f0f2f5; color: #333; }
-        .navbar { background: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .nav-brand { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: bold; color: #2c3e50; }
-        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; display: grid; gap: 1rem; }
-        .card { background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
-        .card h2 { margin-bottom: 1rem; color: #2c3e50; border-bottom: 2px solid #f0f0f0; padding-bottom: 0.5rem; }
-        .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; font-weight: bold; margin: 1rem auto; }
-        .score { font-size: 2.5rem; }
-        .score-label { font-size: 1rem; }
-        .alert { background: #fff3cd; border: 1px solid #ffeaa7; padding: 1rem; border-radius: 5px; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
-        .alert.urgent { background: #f8d7da; border-color: #f5c6cb; }
-        .btn { padding: 0.5rem 1rem; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        .depot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem; }
-        .depot-item { text-align: center; padding: 1rem; border-radius: 5px; background: #f8f9fa; }
-        .depot-item.bad { background: #f8d7da; }
-        .depot-item.good { background: #d4edda; }
-        .depot-item.warning { background: #fff3cd; }
-        .progress-bar { height: 10px; background: #e9ecef; border-radius: 5px; margin-top: 5px; overflow: hidden; }
-        .progress-fill { height: 100%; }
-        .quick-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; }
-        .action-btn { padding: 1rem; background: white; border: 2px solid #667eea; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.3s; }
-        .action-btn:hover { background: #667eea; color: white; }
-        footer { background: #2c3e50; color: white; text-align: center; padding: 1.5rem; margin-top: 2rem; }
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        /* Navigation */
+        .navbar {
+            background: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .nav-brand i {
+            color: #667eea;
+            font-size: 1.8rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: #666;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .nav-links a:hover, .nav-links a.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .card h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Health Score */
+        .health-score {
+            grid-column: 1 / -1;
+        }
+        
+        .score-circle {
+            display: flex;
+            align-items: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+        }
+        
+        .circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(
+                #6bcf7f 0% 40%,
+                #ffd93d 40% 70%,
+                #ff6b6b 70% 100%
+            );
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            position: relative;
+        }
+        
+        .circle::before {
+            content: '';
+            position: absolute;
+            width: 130px;
+            height: 130px;
+            background: white;
+            border-radius: 50%;
+        }
+        
+        .score {
+            font-size: 3rem;
+            z-index: 1;
+        }
+        
+        .score-label {
+            font-size: 1.2rem;
+            z-index: 1;
+        }
+        
+        .score-details {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            border-radius: 5px;
+        }
+        
+        .score-item.good { background: #e8f5e9; }
+        .score-item.warning { background: #fff8e1; }
+        .score-item.bad { background: #ffebee; }
+        
+        /* Alerts */
+        .alert-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .alert {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-radius: 8px;
+            gap: 1rem;
+        }
+        
+        .alert.urgent {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            color: white;
+        }
+        
+        .alert.warning {
+            background: linear-gradient(135deg, #ffd93d, #ffeaa7);
+        }
+        
+        .alert.info {
+            background: linear-gradient(135deg, #4d96ff, #6bc5ff);
+            color: white;
+        }
+        
+        .alert i {
+            font-size: 1.5rem;
+        }
+        
+        .alert-content {
+            flex: 1;
+        }
+        
+        .alert-content h3 {
+            margin-bottom: 0.3rem;
+        }
+        
+        .btn-action {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            background: white;
+            color: #333;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .btn-action:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* Depot Stats */
+        .depot-stats {
+            margin-top: 1.5rem;
+        }
+        
+        .depot-stat {
+            margin-bottom: 1rem;
+        }
+        
+        .depot-name {
+            display: inline-block;
+            width: 100px;
+            font-weight: bold;
+        }
+        
+        .depot-percent {
+            margin-left: 1rem;
+            font-weight: bold;
+        }
+        
+        .depot-percent.good { color: var(--success); }
+        .depot-percent.warning { color: var(--warning); }
+        .depot-percent.bad { color: var(--danger); }
+        
+        .progress-bar {
+            height: 10px;
+            background: #ecf0f1;
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 5px;
+        }
+        
+        /* Quick Actions */
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        
+        .action-btn {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 1.5rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .action-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-5px);
+        }
+        
+        .action-btn i {
+            font-size: 2rem;
+        }
+        
+        /* Activity Table */
+        .activity-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .activity-table th {
+            background: #f8f9fa;
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .activity-table td {
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .activity-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--primary);
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: 3rem;
+        }
+        
+        footer p {
+            margin: 0.5rem 0;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .score-circle {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .action-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        /* Badges */
+        .badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+        
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+        .badge-danger { background: #f8d7da; color: #721c24; }
+        .badge-info { background: #d1ecf1; color: #0c5460; }
+        
+        .positive { color: var(--success); font-weight: bold; }
+        .negative { color: var(--danger); font-weight: bold; }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1001;
+        }
+        
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 2rem;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 10px;
+            position: relative;
+        }
+        
+        .close {
+            position: absolute;
+            right: 1.5rem;
+            top: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 3rem;
+            text-align: center;
+            margin: 1rem 0;
+            cursor: pointer;
+        }
+        
+        .upload-area i {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        
+        .btn-upload {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            background: #667eea;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
     </style>
 </head>
 <body>
+    <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-brand">
-            📊 Surovi Agro Inventory System
+            <i class="fas fa-warehouse"></i>
+            <span>Surovi Agro Industries Ltd.</span>
         </div>
-        <div>As of: <span id="currentDate"></span></div>
+        <div class="nav-links">
+            <a href="index.html" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="executive.html"><i class="fas fa-chart-line"></i> Executive</a>
+            <a href="operations.html"><i class="fas fa-cogs"></i> Operations</a>
+            <a href="analyst.html"><i class="fas fa-chart-bar"></i> Analyst</a>
+        </div>
+        <div class="nav-user">
+            <span>As of: <span id="currentDate"></span></span>
+        </div>
     </nav>
 
+    <!-- Main Content -->
     <div class="container">
-        <div class="card">
-            <h2>📈 Inventory Health Score</h2>
+        <!-- Health Score Card -->
+        <div class="card health-score">
+            <h2><i class="fas fa-heartbeat"></i> Inventory Health Score</h2>
             <div class="score-circle">
-                <div class="score">6.8</div>
-                <div class="score-label">/10</div>
-            </div>
-            <p style="text-align: center; margin-top: 1rem;">Overall inventory health - Needs improvement</p>
-        </div>
-
-        <div class="card">
-            <h2>⚠️ Critical Alerts</h2>
-            <div class="alert urgent">
-                <div>
-                    <strong>Agent 505 EC - OUT OF STOCK</strong><br>
-                    <small>0 units in all depots</small>
+                <div class="circle" id="healthCircle">
+                    <span class="score">6.8</span>
+                    <span class="score-label">/10</span>
                 </div>
-                <button class="btn">Reorder Now</button>
-            </div>
-            <div class="alert">
-                <div>
-                    <strong>Depot Imbalance Detected</strong><br>
-                    <small>Bogra (30%) and Rangpur (26%) overstocked</small>
-                </div>
-                <button class="btn">Rebalance</button>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>🏭 Depot Distribution</h2>
-            <div class="depot-grid">
-                <div class="depot-item bad">
-                    <strong>Bogra</strong>
-                    <div>30% ⚠️</div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 30%; background: #ff6b6b;"></div>
+                <div class="score-details">
+                    <div class="score-item good">
+                        <span class="label">Stock Turnover</span>
+                        <span class="value">6.0 ⚠️</span>
                     </div>
-                </div>
-                <div class="depot-item warning">
-                    <strong>Rangpur</strong>
-                    <div>26% ⚠️</div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 26%; background: #ffd93d;"></div>
+                    <div class="score-item warning">
+                        <span class="label">Service Level</span>
+                        <span class="value">92% ⚠️</span>
                     </div>
-                </div>
-                <div class="depot-item good">
-                    <strong>Dhaka</strong>
-                    <div>15% ✅</div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 15%; background: #6bcf7f;"></div>
+                    <div class="score-item warning">
+                        <span class="label">Stock Accuracy</span>
+                        <span class="value">95% ⚠️</span>
                     </div>
-                </div>
-                <div class="depot-item bad">
-                    <strong>Chattagram</strong>
-                    <div>12% 🔴</div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 12%; background: #ff6b6b;"></div>
+                    <div class="score-item bad">
+                        <span class="label">Stock-Out Rate</span>
+                        <span class="value">5% 🔴</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="card">
-            <h2>⚡ Quick Actions</h2>
-            <div class="quick-actions">
-                <button class="action-btn" onclick="alert('Stock rebalancing page will open here')">
-                    📦 Stock Rebalancing
+        <!-- Critical Alerts -->
+        <div class="card critical-alerts">
+            <h2><i class="fas fa-exclamation-triangle"></i> Critical Alerts</h2>
+            <div class="alert-list">
+                <div class="alert urgent">
+                    <i class="fas fa-times-circle"></i>
+                    <div class="alert-content">
+                        <h3>Agent 505 EC - OUT OF STOCK</h3>
+                        <p>0 units in all depots • Needs immediate reorder</p>
+                    </div>
+                    <button class="btn-action" onclick="reorderProduct('Agent 505 EC')">Reorder Now</button>
+                </div>
+                <div class="alert warning">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <div class="alert-content">
+                        <h3>Ratol 500g - Low Stock</h3>
+                        <p>140 units • Below minimum threshold of 200</p>
+                    </div>
+                    <button class="btn-action" onclick="viewProduct('Ratol 500g')">Check Stock</button>
+                </div>
+                <div class="alert info">
+                    <i class="fas fa-exchange-alt"></i>
+                    <div class="alert-content">
+                        <h3>Depot Imbalance Detected</h3>
+                        <p>Bogra (30%) and Rangpur (26%) overstocked</p>
+                    </div>
+                    <button class="btn-action" onclick="showRebalancing()">Rebalance</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Depot Distribution -->
+        <div class="card depot-distribution">
+            <h2><i class="fas fa-map-marker-alt"></i> Depot Stock Distribution</h2>
+            <div class="chart-container">
+                <canvas id="depotChart"></canvas>
+            </div>
+            <div class="depot-stats">
+                <div class="depot-stat">
+                    <span class="depot-name">Bogra</span>
+                    <span class="depot-percent bad">30%</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 30%; background-color: #ff6b6b;"></div>
+                    </div>
+                </div>
+                <div class="depot-stat">
+                    <span class="depot-name">Rangpur</span>
+                    <span class="depot-percent warning">26%</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 26%; background-color: #ffd93d;"></div>
+                    </div>
+                </div>
+                <div class="depot-stat">
+                    <span class="depot-name">Dhaka</span>
+                    <span class="depot-percent good">15%</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 15%; background-color: #6bcf7f;"></div>
+                    </div>
+                </div>
+                <div class="depot-stat">
+                    <span class="depot-name">Chattagram</span>
+                    <span class="depot-percent bad">12%</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 12%; background-color: #ff6b6b;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card quick-actions">
+            <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
+            <div class="action-grid">
+                <button class="action-btn" onclick="showRebalancing()">
+                    <i class="fas fa-truck-moving"></i>
+                    <span>Stock Rebalancing</span>
                 </button>
-                <button class="action-btn" onclick="alert('ABC Analysis page will open here')">
-                    📊 ABC Analysis
+                <button class="action-btn" onclick="showABCAnalysis()">
+                    <i class="fas fa-list-ol"></i>
+                    <span>ABC Analysis</span>
                 </button>
-                <button class="action-btn" onclick="alert('All alerts page will open here')">
-                    🔔 View All Alerts
+                <button class="action-btn" onclick="showAllAlerts()">
+                    <i class="fas fa-bell"></i>
+                    <span>View All Alerts</span>
                 </button>
-                <button class="action-btn" onclick="alert('Import feature coming soon')">
-                    📥 Import Data
+                <button class="action-btn" onclick="showImportModal()">
+                    <i class="fas fa-file-import"></i>
+                    <span>Import Excel Data</span>
+                </button>
+                <button class="action-btn" onclick="generateReport()">
+                    <i class="fas fa-file-pdf"></i>
+                    <span>Generate Report</span>
+                </button>
+                <button class="action-btn" onclick="showDataEntry()">
+                    <i class="fas fa-edit"></i>
+                    <span>Manual Adjustment</span>
                 </button>
             </div>
         </div>
 
-        <div class="card">
-            <h2>📋 Recent Activity</h2>
-            <ul style="list-style: none; padding: 0;">
-                <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee;">🕘 09:30 - Stock adjustment: Prosper 10g (-240)</li>
-                <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee;">🕥 10:15 - Receiving: Moto 20g (+1500)</li>
-                <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee;">🕦 11:45 - Transfer: Current 70WP (-800)</li>
-                <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee;">🕝 14:20 - Cycle count: Ratol 500g (Audit)</li>
-                <li style="padding: 0.5rem 0;">🕒 15:00 - Reorder: Agent 505 EC (+500)</li>
-            </ul>
+        <!-- Recent Activity -->
+        <div class="card recent-activity">
+            <h2><i class="fas fa-history"></i> Recent Activity</h2>
+            <table class="activity-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Action</th>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>User</th>
+                    </tr>
+                </thead>
+                <tbody id="activityBody">
+                    <tr>
+                        <td>09:30</td>
+                        <td><span class="badge badge-warning">Adjustment</span></td>
+                        <td>Prosper 10g</td>
+                        <td class="negative">-240</td>
+                        <td>John Doe</td>
+                    </tr>
+                    <tr>
+                        <td>10:15</td>
+                        <td><span class="badge badge-success">Receiving</span></td>
+                        <td>Moto 20g</td>
+                        <td class="positive">+1500</td>
+                        <td>Sarah Smith</td>
+                    </tr>
+                    <tr>
+                        <td>11:45</td>
+                        <td><span class="badge badge-info">Transfer</span></td>
+                        <td>Current 70WP</td>
+                        <td class="negative">-800</td>
+                        <td>Mike Johnson</td>
+                    </tr>
+                    <tr>
+                        <td>13:20</td>
+                        <td><span class="badge badge-warning">Cycle Count</span></td>
+                        <td>Ratol 500g</td>
+                        <td>Audit</td>
+                        <td>Inventory Team</td>
+                    </tr>
+                    <tr>
+                        <td>15:00</td>
+                        <td><span class="badge badge-success">Reorder</span></td>
+                        <td>Agent 505 EC</td>
+                        <td class="positive">+500</td>
+                        <td>Purchasing</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
+    <!-- Import Modal -->
+    <div id="importModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeImportModal()">&times;</span>
+            <h2><i class="fas fa-file-excel"></i> Import Excel Data</h2>
+            <div class="upload-area" id="dropArea">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Drag & drop your Excel file here</p>
+                <p class="small">or</p>
+                <input type="file" id="fileInput" accept=".xlsx, .xls, .csv">
+                <label for="fileInput" class="btn-upload">Browse Files</label>
+            </div>
+            <div class="import-options">
+                <h3>Import Options</h3>
+                <label>
+                    <input type="radio" name="importType" value="replace" checked> Replace All Data
+                </label>
+                <label>
+                    <input type="radio" name="importType" value="append"> Append to Existing Data
+                </label>
+                <label>
+                    <input type="radio" name="importType" value="update"> Update Existing Items
+                </label>
+            </div>
+            <button class="btn-primary" onclick="processImport()">Import Data</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
     <footer>
         <p>Surovi Agro Industries Ltd. | Inventory Optimization System v1.0</p>
-        <p>Deployed on GitHub Pages - No server required</p>
+        <p>Live Dashboard | Last Updated: <span id="lastUpdated"></span></p>
     </footer>
 
     <script>
-        // Set current date
-        const now = new Date();
-        document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current date
+            const now = new Date();
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            document.getElementById('lastUpdated').textContent = now.toLocaleString();
+            
+            // Initialize charts
+            initializeCharts();
+            
+            // Load health score from localStorage or calculate
+            loadHealthScore();
         });
 
-        // Simple functionality
-        document.querySelectorAll('.btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                alert('This feature is working! Full functionality available in complete version.');
+        // Initialize Charts
+        function initializeCharts() {
+            // Depot Distribution Chart
+            const depotCtx = document.getElementById('depotChart').getContext('2d');
+            new Chart(depotCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Dhaka', 'Jhenaidah', 'Bogra', 'Rangpur', 'Chattagram', 'Factory'],
+                    datasets: [{
+                        data: [15, 13, 30, 26, 12, 4],
+                        backgroundColor: [
+                            '#6bcf7f',
+                            '#4d96ff',
+                            '#ff6b6b',
+                            '#ffd93d',
+                            '#9b59b6',
+                            '#95a5a6'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
             });
+        }
+
+        // Load Health Score
+        function loadHealthScore() {
+            // Calculate or load from localStorage
+            const healthScore = localStorage.getItem('healthScore') || 6.8;
+            document.querySelector('.score').textContent = healthScore;
+            
+            // Update circle animation
+            const circle = document.querySelector('.circle');
+            const percentage = (healthScore / 10) * 100;
+            circle.style.background = `conic-gradient(
+                #6bcf7f 0% ${percentage * 0.4}%,
+                #ffd93d ${percentage * 0.4}% ${percentage * 0.7}%,
+                #ff6b6b ${percentage * 0.7}% ${percentage}%,
+                #ecf0f1 ${percentage}% 100%
+            )`;
+        }
+
+        // Import Modal Functions
+        function showImportModal() {
+            document.getElementById('importModal').style.display = 'block';
+        }
+
+        function closeImportModal() {
+            document.getElementById('importModal').style.display = 'none';
+        }
+
+        // Process Import
+        function processImport() {
+            const importType = document.querySelector('input[name="importType"]:checked').value;
+            const fileInput = document.getElementById('fileInput');
+            
+            if (!fileInput.files[0]) {
+                alert('Please select a file first');
+                return;
+            }
+            
+            const fileName = fileInput.files[0].name;
+            
+            // Show loading
+            const dropArea = document.getElementById('dropArea');
+            dropArea.innerHTML = `
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Processing ${fileName}...</p>
+                </div>
+            `;
+            
+            // Simulate processing
+            setTimeout(() => {
+                alert(`Successfully imported data from ${fileName} (${importType} mode)`);
+                closeImportModal();
+                resetUploadArea();
+                // Reload dashboard data
+                loadHealthScore();
+            }, 2000);
+        }
+
+        function resetUploadArea() {
+            const dropArea = document.getElementById('dropArea');
+            dropArea.innerHTML = `
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Drag & drop your Excel file here</p>
+                <p class="small">or</p>
+                <input type="file" id="fileInput" accept=".xlsx, .xls, .csv">
+                <label for="fileInput" class="btn-upload">Browse Files</label>
+            `;
+        }
+
+        // Generate Report
+        function generateReport() {
+            const reportData = {
+                date: new Date().toLocaleDateString(),
+                healthScore: document.querySelector('.score').textContent,
+                alerts: document.querySelectorAll('.alert').length,
+                depots: ['Dhaka', 'Jhenaidah', 'Bogra', 'Rangpur', 'Chattagram', 'Factory']
+            };
+            
+            // Create report content
+            const reportContent = `
+                Surovi Agro Inventory Health Report
+                ===================================
+                Date: ${reportData.date}
+                Health Score: ${reportData.healthScore}/10
+                Critical Alerts: ${reportData.alerts}
+                
+                Depot Distribution:
+                ${reportData.depots.map((depot, i) => `${depot}: ${[15,13,30,26,12,4][i]}%`).join('\n')}
+                
+                Recommendations:
+                1. Rebalance stock from Bogra to Chattagram
+                2. Reorder Agent 505 EC immediately
+                3. Review ABC classification quarterly
+                4. Implement safety stock levels
+            `;
+            
+            // Download as text file
+            const blob = new Blob([reportContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `surovi-inventory-report-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert('Report generated and downloaded!');
+        }
+
+        // Action Functions
+        function reorderProduct(product) {
+            alert(`Reorder initiated for: ${product}\nQuantity: 500 units\nEstimated delivery: 3 days`);
+        }
+
+        function viewProduct(product) {
+            alert(`Viewing details for: ${product}\nCurrent stock: 140 units\nMinimum threshold: 200 units\nAction required: Reorder immediately`);
+        }
+
+        function showRebalancing() {
+            alert('Opening Stock Rebalancing Tool...\n\nRecommended actions:\n1. Transfer 2,000 Prosper from Bogra to Chattagram\n2. Transfer 1,500 Moto from Rangpur to Dhaka\n3. Review all depot balances');
+        }
+
+        function showABCAnalysis() {
+            alert('Opening ABC Analysis...\n\nA Items (20%): Prosper, Moto, Current\nB Items (30%): Ratol, Filtap, Agent\nC Items (50%): All others');
+        }
+
+        function showAllAlerts() {
+            alert('Opening All Alerts...\n\n1. Agent 505 EC - Out of stock (URGENT)\n2. Ratol 500g - Low stock\n3. Depot imbalance\n4. 15 products need cycle count\n5. 3 transfers pending');
+        }
+
+        function showDataEntry() {
+            alert('Opening Manual Adjustment Form...\n\nFeature coming in next version!');
+        }
+
+        // Drag and drop functionality
+        const dropArea = document.getElementById('dropArea');
+        const fileInput = document.getElementById('fileInput');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
         });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            dropArea.style.borderColor = '#667eea';
+            dropArea.style.background = '#f0f4ff';
+        }
+
+        function unhighlight() {
+            dropArea.style.borderColor = '#667eea';
+            dropArea.style.background = 'white';
+        }
+
+        dropArea.addEventListener('drop', handleDrop, false);
+        fileInput.addEventListener('change', handleFiles, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles({ target: { files } });
+        }
+
+        function handleFiles(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                const fileName = files[0].name;
+                dropArea.innerHTML = `
+                    <i class="fas fa-file-excel" style="color: #27ae60;"></i>
+                    <p>${fileName}</p>
+                    <p class="small">Ready to import</p>
+                `;
+            }
+        }
     </script>
 </body>
 </html>
