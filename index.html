@@ -3,262 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Surovi Agro Industries - National Stock Dashboard</title>
+    <title>Surovi Agro Industries - Stock Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --success-color: #27ae60;
-            --warning-color: #f39c12;
-            --danger-color: #e74c3c;
-        }
-        
-        body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        .dashboard-header {
-            background: linear-gradient(135deg, var(--primary-color), #34495e);
-            color: white;
-            padding: 20px 0;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .card {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-            margin-bottom: 20px;
-            transition: transform 0.3s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-2px);
-        }
-        
-        .card-header {
-            background-color: white;
-            border-bottom: 2px solid var(--secondary-color);
-            font-weight: 600;
-        }
-        
-        .btn-primary {
-            background-color: var(--secondary-color);
-            border-color: var(--secondary-color);
-            padding: 10px 25px;
-        }
-        
-        .btn-primary:hover {
-            background-color: #2980b9;
-            border-color: #2980b9;
-        }
-        
-        .table th {
-            background-color: #f8f9fa;
-            border-top: none;
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-        
-        .file-upload-area {
-            border: 2px dashed #dee2e6;
-            border-radius: 10px;
-            padding: 40px;
-            text-align: center;
-            background-color: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .file-upload-area:hover {
-            border-color: var(--secondary-color);
-            background-color: #f8f9fa;
-        }
-        
-        .sheet-tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
-        }
-        
-        .sheet-tab.active {
-            border-bottom-color: var(--secondary-color);
-            color: var(--secondary-color);
-            font-weight: 600;
-        }
-        
-        .stock-value {
-            font-weight: 600;
-        }
-        
-        @media (max-width: 768px) {
-            .dashboard-header h1 {
-                font-size: 1.5em;
-            }
-        }
-        
-        #debugConsole {
-            max-height: 200px;
-            overflow-y: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-        }
-        
-        .debug-info {
-            color: #666;
-        }
-        
-        .debug-error {
-            color: #e74c3c;
-        }
-        
-        .debug-success {
-            color: #27ae60;
-        }
+        body { background-color: #f8f9fa; font-family: Arial, sans-serif; }
+        .header { background: #2c3e50; color: white; padding: 20px 0; }
+        .card { border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .upload-area { border: 2px dashed #ddd; border-radius: 10px; padding: 40px; text-align: center; }
+        .upload-area:hover { border-color: #3498db; background: #f8f9fa; }
     </style>
 </head>
 <body>
-    <div class="dashboard-header">
+    <div class="header mb-4">
         <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h1><i class="fas fa-warehouse me-2"></i>Surovi Agro Industries Ltd.</h1>
-                    <p class="mb-0">National Stock Dashboard</p>
-                </div>
-                <div class="col-md-4 text-md-end">
-                    <div class="input-group search-box">
-                        <input type="text" class="form-control" placeholder="Search products..." id="searchInput">
-                        <button class="btn btn-outline-light" type="button" onclick="searchProducts()">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <h1><i class="fas fa-warehouse"></i> Surovi Agro Industries</h1>
+            <p class="mb-0">National Stock Dashboard</p>
         </div>
     </div>
 
     <div class="container">
-        <!-- File Upload Section -->
-        <div class="row mb-4">
+        <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header bg-primary text-white">
                         <i class="fas fa-file-upload me-2"></i>Upload Excel File
-                        <button class="btn btn-sm btn-outline-info float-end" onclick="toggleDebug()">
-                            <i class="fas fa-bug"></i> Debug
-                        </button>
                     </div>
                     <div class="card-body">
-                        <div id="fileUploadArea" class="file-upload-area">
+                        <div id="uploadArea" class="upload-area">
                             <i class="fas fa-cloud-upload-alt fa-3x mb-3 text-secondary"></i>
-                            <h5>Drag & Drop your Excel file here</h5>
-                            <p class="text-muted">or click to browse (supports .xlsx, .xls)</p>
-                            <input type="file" id="excelFile" accept=".xlsx,.xls" class="d-none">
-                            <button class="btn btn-primary mt-3" onclick="document.getElementById('excelFile').click()">
-                                <i class="fas fa-folder-open me-2"></i>Browse Files
+                            <h4>Upload Your Excel File</h4>
+                            <p class="text-muted">Drag & drop or click to browse (.xlsx, .xls)</p>
+                            <input type="file" id="fileInput" accept=".xlsx,.xls" class="d-none">
+                            <button class="btn btn-lg btn-primary mt-3" onclick="document.getElementById('fileInput').click()">
+                                <i class="fas fa-folder-open me-2"></i> Choose File
                             </button>
                         </div>
-                        <div id="fileInfo" class="mt-3 d-none">
-                            <div class="alert alert-success">
-                                <i class="fas fa-check-circle me-2"></i>
-                                <span id="fileName"></span> loaded successfully
-                                <span id="sheetCount" class="float-end"></span>
-                            </div>
+                        
+                        <div id="fileInfo" class="alert alert-success mt-3 d-none">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span id="fileName"></span> uploaded successfully
                         </div>
                         
-                        <!-- Debug Console -->
-                        <div id="debugConsole" class="mt-3 d-none border rounded p-2 bg-light">
-                            <h6 class="border-bottom pb-2">Debug Console</h6>
-                            <div id="debugOutput"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Dashboard Content (Initially Hidden) -->
-        <div id="dashboardContent" class="d-none">
-            <!-- Dashboard Stats -->
-            <div class="row mb-4">
-                <div class="col-md-3">
-                    <div class="card text-center">
-                        <div class="card-body">
-                            <h5 class="text-muted">Total Products</h5>
-                            <h2 id="totalProducts" class="text-primary">0</h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card text-center">
-                        <div class="card-body">
-                            <h5 class="text-muted">Total Units</h5>
-                            <h2 id="totalStock" class="text-success">0</h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card text-center">
-                        <div class="card-body">
-                            <h5 class="text-muted">Low Stock</h5>
-                            <h2 id="lowStock" class="text-warning">0</h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card text-center">
-                        <div class="card-body">
-                            <h5 class="text-muted">Report Date</h5>
-                            <h2 id="reportDate" class="text-info">-</h2>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sheet Tabs -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <i class="fas fa-calendar me-2"></i>Select Date Sheet
-                        </div>
-                        <div class="card-body">
-                            <div id="sheetTabs" class="d-flex flex-wrap gap-2">
-                                <!-- Tabs will be generated here -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Product Table -->
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="fas fa-box me-2"></i>Product Stock Summary
-                                <span class="badge bg-secondary ms-2" id="productCount">0 products</span>
-                            </div>
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-success btn-sm" onclick="exportToExcel()">
-                                    <i class="fas fa-file-excel me-1"></i> Export
-                                </button>
-                                <button class="btn btn-outline-secondary btn-sm" onclick="filterStock('all')">
-                                    All Products
-                                </button>
-                                <button class="btn btn-outline-warning btn-sm" onclick="filterStock('low')">
-                                    Low Stock
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-body">
+                        <div id="dataSection" class="mt-4 d-none">
+                            <h4>Data Preview</h4>
                             <div class="table-responsive">
-                                <table class="table table-hover" id="stockTable">
+                                <table class="table table-bordered">
                                     <thead>
                                         <tr>
                                             <th>#</th>
@@ -268,12 +58,10 @@
                                             <th>Bogra</th>
                                             <th>Rangpur</th>
                                             <th>Chattagram</th>
-                                            <th>Total</th>
-                                            <th>Status</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="stockTableBody">
-                                        <!-- Data will be loaded here -->
+                                    <tbody id="dataTable">
+                                        <!-- Data will appear here -->
                                     </tbody>
                                 </table>
                             </div>
@@ -287,508 +75,118 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <script>
-        // Global variables
-        let excelData = null;
-        let currentSheetIndex = 0;
-        let currentData = null;
-        let filteredProducts = null;
-
-        // Debug logging
-        function debugLog(message, type = 'info') {
-            const debugOutput = document.getElementById('debugOutput');
-            if (debugOutput) {
-                const timestamp = new Date().toLocaleTimeString();
-                const logEntry = document.createElement('div');
-                logEntry.className = `debug-${type}`;
-                logEntry.textContent = `[${timestamp}] ${message}`;
-                debugOutput.appendChild(logEntry);
-                debugOutput.scrollTop = debugOutput.scrollHeight;
-            }
-            console.log(`[${type.toUpperCase()}] ${message}`);
-        }
-
-        function toggleDebug() {
-            const debugConsole = document.getElementById('debugConsole');
-            debugConsole.classList.toggle('d-none');
-        }
-
-        // File upload setup
-        const fileInput = document.getElementById('excelFile');
-        fileInput.addEventListener('change', handleFileUpload);
-
-        // Drag and drop setup
-        const fileUploadArea = document.getElementById('fileUploadArea');
-        fileUploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            fileUploadArea.style.borderColor = '#3498db';
-        });
-        
-        fileUploadArea.addEventListener('dragleave', () => {
-            fileUploadArea.style.borderColor = '#dee2e6';
-        });
-        
-        fileUploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            fileUploadArea.style.borderColor = '#dee2e6';
-            if (e.dataTransfer.files.length) {
-                fileInput.files = e.dataTransfer.files;
-                handleFileUpload();
-            }
-        });
-
-        async function handleFileUpload() {
-            if (!fileInput.files.length) return;
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
             
-            const file = fileInput.files[0];
-            debugLog(`Starting to process file: ${file.name} (${(file.size/1024).toFixed(1)} KB)`, 'info');
+            // Show file info
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileInfo').classList.remove('d-none');
             
-            // Show loading state
-            fileUploadArea.innerHTML = `
+            // Update upload area
+            document.getElementById('uploadArea').innerHTML = `
                 <div class="spinner-border text-primary mb-3" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
                 <h5>Processing ${file.name}</h5>
-                <p class="text-muted">Reading Excel file...</p>
+                <p>Reading Excel file...</p>
             `;
             
-            try {
-                const data = await readExcelFile(file);
-                excelData = data;
-                
-                debugLog(`File read successfully. Found ${data.sheets.length} sheets.`, 'success');
-                
-                // Process each sheet
-                data.sheets.forEach((sheet, index) => {
-                    debugLog(`Processing sheet ${index + 1}: ${sheet.name}`, 'info');
-                    sheet.parsedData = parseSheetData(sheet.data);
-                    sheet.parsedData.sheetName = sheet.name;
-                    debugLog(`Parsed ${sheet.parsedData.products.length} products from sheet ${sheet.name}`, 'info');
-                });
-                
-                // Show file info
-                document.getElementById('fileName').textContent = file.name;
-                document.getElementById('sheetCount').textContent = `${data.sheets.length} sheets`;
-                document.getElementById('fileInfo').classList.remove('d-none');
-                
-                // Reset upload area
-                fileUploadArea.innerHTML = `
-                    <i class="fas fa-check-circle fa-3x mb-3 text-success"></i>
-                    <h5>File loaded successfully!</h5>
-                    <p class="text-muted">${data.sheets.length} sheets processed</p>
-                    <button class="btn btn-outline-secondary mt-3" onclick="document.getElementById('excelFile').click()">
-                        <i class="fas fa-sync me-2"></i>Load Another File
-                    </button>
-                `;
-                
-                // Initialize dashboard with first sheet
-                if (data.sheets.length > 0 && data.sheets[0].parsedData) {
-                    initializeDashboard(data.sheets[0].parsedData);
-                    createSheetTabs(data.sheets);
-                    
-                    // Show dashboard content
-                    document.getElementById('dashboardContent').classList.remove('d-none');
-                    
-                    debugLog('Dashboard initialized successfully!', 'success');
-                } else {
-                    throw new Error('No valid data found in sheets');
-                }
-                
-            } catch (error) {
-                debugLog(`Error: ${error.message}`, 'error');
-                console.error('Detailed error:', error);
-                
-                alert(`Error loading file: ${error.message}\n\nPlease check the debug console for details.`);
-                
-                // Reset upload area
-                fileUploadArea.innerHTML = `
-                    <i class="fas fa-cloud-upload-alt fa-3x mb-3 text-secondary"></i>
-                    <h5>Drag & Drop your Excel file here</h5>
-                    <p class="text-muted">or click to browse (supports .xlsx, .xls)</p>
-                    <button class="btn btn-primary mt-3" onclick="document.getElementById('excelFile').click()">
-                        <i class="fas fa-folder-open me-2"></i>Browse Files
-                    </button>
-                `;
-            }
-        }
-
-        function readExcelFile(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    try {
-                        debugLog('FileReader: File read successfully, parsing Excel...', 'info');
-                        const data = e.target.result;
-                        const workbook = XLSX.read(data, { 
-                            type: 'binary',
-                            cellDates: true,
-                            cellStyles: true
-                        });
-                        
-                        debugLog(`Excel parsed. Sheet names: ${workbook.SheetNames.join(', ')}`, 'info');
-                        
-                        const sheets = workbook.SheetNames.map(sheetName => {
-                            debugLog(`Processing sheet: ${sheetName}`, 'info');
-                            const worksheet = workbook.Sheets[sheetName];
-                            // Get raw data including all cells
-                            const sheetData = XLSX.utils.sheet_to_json(worksheet, { 
-                                header: 1,
-                                defval: '',
-                                raw: false
-                            });
-                            
-                            debugLog(`Sheet ${sheetName}: ${sheetData.length} rows, ${sheetData[0]?.length || 0} columns`, 'info');
-                            
-                            // Show first few rows for debugging
-                            if (sheetData.length > 0) {
-                                debugLog(`First row sample: ${JSON.stringify(sheetData[0]?.slice(0, 5))}`, 'info');
-                            }
-                            
-                            return {
-                                name: sheetName,
-                                date: sheetName,
-                                data: sheetData
-                            };
-                        });
-                        
-                        resolve({ sheets, workbook });
-                        
-                    } catch (error) {
-                        debugLog(`Excel parsing error: ${error.message}`, 'error');
-                        reject(new Error(`Failed to parse Excel file: ${error.message}`));
-                    }
-                };
-                
-                reader.onerror = function(e) {
-                    debugLog(`FileReader error: ${e.target.error}`, 'error');
-                    reject(new Error(`Failed to read file: ${e.target.error}`));
-                };
-                
-                reader.readAsBinaryString(file);
-            });
-        }
-
-        function parseSheetData(sheetData) {
-            debugLog('Starting to parse sheet data...', 'info');
-            
-            const products = [];
-            const depots = ['Dhaka', 'Jhenaidah', 'Bogra', 'Rangpur', 'Chattagram'];
-            
-            if (!sheetData || sheetData.length < 7) {
-                debugLog('Sheet data is empty or too short', 'error');
-                return { products, depots, totalProducts: 0, totalUnits: 0, sheetName: "Current Sheet" };
-            }
-            
-            // Find where data starts - look for "Portfolio" header
-            let startRow = 0;
-            for (let i = 0; i < Math.min(10, sheetData.length); i++) {
-                if (sheetData[i] && sheetData[i][0] && sheetData[i][0].toString().includes('Portfolio')) {
-                    startRow = i + 1; // Start from next row after header
-                    break;
-                }
-            }
-            
-            debugLog(`Data starts at row ${startRow + 1}`, 'info');
-            
-            // Process data rows
-            for (let i = startRow; i < sheetData.length; i++) {
-                const row = sheetData[i];
-                
-                // Skip empty rows
-                if (!row || row.length < 2) continue;
-                
-                // Get product name from column B (index 1)
-                const productName = row[1];
-                if (!productName || productName.toString().trim() === '' || 
-                    productName.toString().includes('Product Name') || 
-                    productName.toString().includes('PRODUCT NAME')) {
-                    continue;
-                }
-                
-                debugLog(`Processing product: ${productName}`, 'info');
-                
-                const product = {
-                    name: productName.toString().trim(),
-                    depots: {},
-                    total: 0,
-                    rowIndex: i + 1
-                };
-                
+            // Read the Excel file
+            const reader = new FileReader();
+            reader.onload = function(e) {
                 try {
-                    // Extract depot values based on your Excel structure
-                    // Column indices: E=4, F=5, G=6, H=7, I=8 (0-based)
-                    const depotValues = [4, 5, 6, 7, 8];
+                    const data = e.target.result;
+                    const workbook = XLSX.read(data, { type: 'binary' });
+                    const firstSheet = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheet];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
                     
-                    let rowTotal = 0;
-                    depots.forEach((depot, idx) => {
-                        const value = row[depotValues[idx]];
-                        let numericValue = 0;
-                        
-                        if (value !== undefined && value !== null && value !== '') {
-                            // Try to parse number
-                            if (typeof value === 'number') {
-                                numericValue = value;
-                            } else if (typeof value === 'string') {
-                                // Clean string and convert to number
-                                const cleanValue = value.toString()
-                                    .replace(/[^\d.-]/g, '')
-                                    .replace(/=/g, '')
-                                    .trim();
-                                numericValue = parseFloat(cleanValue) || 0;
-                            }
-                        }
-                        
-                        product.depots[depot] = numericValue;
-                        rowTotal += numericValue;
-                    });
+                    // Update upload area
+                    document.getElementById('uploadArea').innerHTML = `
+                        <i class="fas fa-check-circle fa-3x mb-3 text-success"></i>
+                        <h5>File Processed Successfully!</h5>
+                        <p>Found ${jsonData.length - 1} rows of data</p>
+                        <button class="btn btn-outline-secondary mt-2" onclick="document.getElementById('fileInput').click()">
+                            <i class="fas fa-sync me-2"></i> Upload Another File
+                        </button>
+                    `;
                     
-                    product.total = rowTotal;
-                    product.status = getStockStatus(rowTotal);
-                    
-                    products.push(product);
-                    debugLog(`Added product: ${product.name} (Total: ${rowTotal})`, 'success');
+                    // Display data
+                    displayData(jsonData);
                     
                 } catch (error) {
-                    debugLog(`Error parsing row ${i + 1}: ${error.message}`, 'error');
+                    document.getElementById('uploadArea').innerHTML = `
+                        <i class="fas fa-exclamation-triangle fa-3x mb-3 text-danger"></i>
+                        <h5>Error Processing File</h5>
+                        <p>${error.message}</p>
+                        <button class="btn btn-primary mt-2" onclick="document.getElementById('fileInput').click()">
+                            <i class="fas fa-redo me-2"></i> Try Again
+                        </button>
+                    `;
+                    console.error('Error:', error);
+                }
+            };
+            
+            reader.onerror = function(e) {
+                alert('Error reading file: ' + e.target.error);
+            };
+            
+            reader.readAsBinaryString(file);
+        });
+
+        function displayData(data) {
+            const tbody = document.getElementById('dataTable');
+            tbody.innerHTML = '';
+            
+            // Find product rows (skip headers)
+            let productCount = 0;
+            for (let i = 6; i < Math.min(data.length, 20); i++) { // Show first 20 rows
+                const row = data[i];
+                if (row && row[1] && typeof row[1] === 'string' && row[1].trim() && 
+                    !row[1].includes('Product Name') && !row[1].includes('PRODUCT NAME')) {
+                    
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${++productCount}</td>
+                        <td><strong>${row[1]}</strong></td>
+                        <td>${formatNumber(row[4] || 0)}</td>
+                        <td>${formatNumber(row[5] || 0)}</td>
+                        <td>${formatNumber(row[6] || 0)}</td>
+                        <td>${formatNumber(row[7] || 0)}</td>
+                        <td>${formatNumber(row[8] || 0)}</td>
+                    `;
+                    tbody.appendChild(tr);
                 }
             }
             
-            debugLog(`Parsed ${products.length} products`, 'success');
-            
-            // Calculate totals
-            const totalUnits = products.reduce((sum, p) => sum + p.total, 0);
-            
-            return {
-                products,
-                depots,
-                totalProducts: products.length,
-                totalUnits,
-                sheetName: "Current Sheet"
-            };
-        }
-
-        function getStockStatus(total) {
-            if (total <= 50) return 'low';
-            if (total <= 200) return 'medium';
-            return 'high';
+            document.getElementById('dataSection').classList.remove('d-none');
         }
 
         function formatNumber(num) {
-            if (num === undefined || num === null) return '0';
-            return num.toLocaleString('en-IN', {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-            });
+            return num ? parseFloat(num).toLocaleString('en-IN') : '0';
         }
 
-        function initializeDashboard(sheetData) {
-            debugLog('Initializing dashboard...', 'info');
-            currentData = sheetData;
-            filteredProducts = [...sheetData.products];
-            
-            // Update dashboard stats
-            document.getElementById('totalProducts').textContent = formatNumber(sheetData.totalProducts);
-            document.getElementById('totalStock').textContent = formatNumber(sheetData.totalUnits);
-            
-            const lowStockCount = sheetData.products.filter(p => p.status === 'low').length;
-            document.getElementById('lowStock').textContent = formatNumber(lowStockCount);
-            
-            // Update report date
-            let reportDate = 'N/A';
-            if (sheetData.sheetName) {
-                const dateMatch = sheetData.sheetName.match(/\d{2}\.\d{2}\.\d{4}/);
-                reportDate = dateMatch ? dateMatch[0] : sheetData.sheetName;
-            }
-            document.getElementById('reportDate').textContent = reportDate;
-            
-            // Populate product table
-            populateProductTable(filteredProducts);
-            
-            debugLog('Dashboard initialized successfully', 'success');
-        }
-
-        function createSheetTabs(sheets) {
-            const tabsContainer = document.getElementById('sheetTabs');
-            tabsContainer.innerHTML = '';
-            
-            sheets.forEach((sheet, index) => {
-                const tab = document.createElement('button');
-                tab.className = `btn btn-sm ${index === 0 ? 'btn-primary' : 'btn-outline-primary'} sheet-tab me-2 mb-2`;
-                tab.textContent = sheet.date;
-                tab.onclick = () => switchSheet(index);
-                tabsContainer.appendChild(tab);
-            });
-        }
-
-        function switchSheet(index) {
-            debugLog(`Switching to sheet ${index}: ${excelData.sheets[index].name}`, 'info');
-            currentSheetIndex = index;
-            const sheet = excelData.sheets[index];
-            
-            // Update active tab
-            document.querySelectorAll('.sheet-tab').forEach((tab, i) => {
-                if (i === index) {
-                    tab.classList.remove('btn-outline-primary');
-                    tab.classList.add('btn-primary');
-                } else {
-                    tab.classList.remove('btn-primary');
-                    tab.classList.add('btn-outline-primary');
-                }
-            });
-            
-            // Reinitialize dashboard with new sheet
-            initializeDashboard(sheet.parsedData);
-        }
-
-        function populateProductTable(products) {
-            const tbody = document.getElementById('stockTableBody');
-            const productCount = document.getElementById('productCount');
-            
-            tbody.innerHTML = '';
-            productCount.textContent = `${products.length} products`;
-            
-            if (products.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="9" class="text-center text-muted py-4">
-                            <i class="fas fa-box-open fa-2x mb-3"></i>
-                            <p>No products found</p>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            products.forEach((product, index) => {
-                const row = document.createElement('tr');
-                
-                // Status styling
-                let statusClass = '';
-                let statusText = '';
-                switch(product.status) {
-                    case 'low':
-                        statusClass = 'badge bg-danger';
-                        statusText = 'Low';
-                        break;
-                    case 'medium':
-                        statusClass = 'badge bg-warning';
-                        statusText = 'Medium';
-                        break;
-                    case 'high':
-                        statusClass = 'badge bg-success';
-                        statusText = 'High';
-                        break;
-                }
-                
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td><strong>${product.name}</strong></td>
-                    <td class="text-end">${formatNumber(product.depots.Dhaka || 0)}</td>
-                    <td class="text-end">${formatNumber(product.depots.Jhenaidah || 0)}</td>
-                    <td class="text-end">${formatNumber(product.depots.Bogra || 0)}</td>
-                    <td class="text-end">${formatNumber(product.depots.Rangpur || 0)}</td>
-                    <td class="text-end">${formatNumber(product.depots.Chattagram || 0)}</td>
-                    <td class="text-end"><strong class="text-primary">${formatNumber(product.total)}</strong></td>
-                    <td><span class="${statusClass}">${statusText}</span></td>
-                `;
-                
-                tbody.appendChild(row);
-            });
-        }
-
-        function filterStock(type) {
-            if (!currentData) return;
-            
-            if (type === 'all') {
-                filteredProducts = [...currentData.products];
-            } else if (type === 'low') {
-                filteredProducts = currentData.products.filter(p => p.status === 'low');
-            }
-            
-            populateProductTable(filteredProducts);
-            debugLog(`Filtered to show ${filteredProducts.length} products (${type})`, 'info');
-        }
-
-        function searchProducts() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
-            
-            if (!searchTerm) {
-                filteredProducts = [...currentData.products];
-            } else {
-                filteredProducts = currentData.products.filter(product => 
-                    product.name.toLowerCase().includes(searchTerm)
-                );
-            }
-            
-            populateProductTable(filteredProducts);
-            debugLog(`Search for "${searchTerm}" found ${filteredProducts.length} products`, 'info');
-        }
-
-        function exportToExcel() {
-            if (!currentData || !filteredProducts.length) {
-                alert('No data to export');
-                return;
-            }
-            
-            // Prepare data for export
-            const exportData = [];
-            
-            // Add headers
-            exportData.push([
-                'No.', 'Product Name', 'Dhaka', 'Jhenaidah', 'Bogra', 'Rangpur', 'Chattagram', 'Total', 'Status'
-            ]);
-            
-            // Add product data
-            filteredProducts.forEach((product, index) => {
-                exportData.push([
-                    index + 1,
-                    product.name,
-                    product.depots.Dhaka || 0,
-                    product.depots.Jhenaidah || 0,
-                    product.depots.Bogra || 0,
-                    product.depots.Rangpur || 0,
-                    product.depots.Chattagram || 0,
-                    product.total,
-                    product.status.toUpperCase()
-                ]);
-            });
-            
-            // Create worksheet
-            const ws = XLSX.utils.aoa_to_sheet(exportData);
-            
-            // Create workbook
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Stock Summary');
-            
-            // Generate filename
-            const dateStr = new Date().toISOString().slice(0, 10);
-            const filename = `Surovi_Stock_${dateStr}.xlsx`;
-            
-            // Download file
-            XLSX.writeFile(wb, filename);
-            debugLog(`Exported ${filteredProducts.length} products to ${filename}`, 'success');
-        }
-
-        // Initialize search functionality
-        document.getElementById('searchInput').addEventListener('keyup', function(e) {
-            if (e.key === 'Enter') {
-                searchProducts();
-            }
+        // Drag and drop
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#3498db';
+            uploadArea.style.background = '#e3f2fd';
         });
-
-        // Initialize
-        window.addEventListener('DOMContentLoaded', () => {
-            debugLog('Surovi Agro Industries Stock Dashboard initialized', 'info');
-            debugLog('Ready to receive Excel files', 'info');
-            
-            // Show a sample message
-            const debugOutput = document.getElementById('debugOutput');
-            if (debugOutput) {
-                debugOutput.innerHTML = `
-                    <div class="debug-info">[System] Dashboard initialized successfully</div>
-                    <div class="debug-info">[System] Waiting for Excel file upload...</div>
-                    <div class="debug-info">[Tip] Click the "Debug" button to show/hide this console</div>
-                `;
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#ddd';
+            uploadArea.style.background = '';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ddd';
+            uploadArea.style.background = '';
+            if (e.dataTransfer.files.length) {
+                document.getElementById('fileInput').files = e.dataTransfer.files;
+                document.getElementById('fileInput').dispatchEvent(new Event('change'));
             }
         });
     </script>
